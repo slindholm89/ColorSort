@@ -1,0 +1,127 @@
+﻿
+<div class="flask-wrapper @(Selected ? "selected" : "") @(Flask.IsSolved ? "solved" : "")"
+     @onclick="OnClick">
+
+    <svg viewBox="0 0 100 300"
+         class="flask-svg">
+
+        <defs>
+
+            <clipPath id="liquidClip">
+
+                <path d="
+                    M25 15
+                    L25 250
+                    Q25 285 50 285
+                    Q75 285 75 250
+                    L75 15
+                    Z" />
+
+            </clipPath>
+
+            <linearGradient id="glassFill"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1">
+
+                <stop offset="0%"
+                      stop-color="white"
+                      stop-opacity="0.12" />
+
+                <stop offset="100%"
+                      stop-color="white"
+                      stop-opacity="0.03" />
+
+            </linearGradient>
+
+        </defs>
+
+        <!-- Liquid contents -->
+
+        <g clip-path="url(#liquidClip)">
+
+            @{
+                const int segmentHeight = 62;
+                const int bottomY = 285;
+
+                for (int i = 0; i < Flask.Contents.Count; i++)
+                {
+                    var color = Flask.Contents[i].ColorId;
+
+                    var y = bottomY - ((i + 1) * segmentHeight);
+
+                    <rect x="25"
+                          y="@y"
+                          width="50"
+                          height="@segmentHeight"
+                          fill="@color" />
+
+                    <!-- Liquid highlight -->
+
+                    <rect x="25"
+                          y="@y"
+                          width="50"
+                          height="4"
+                          fill="rgba(255,255,255,.22)" />
+                }
+            }
+
+        </g>
+
+        <!-- Glass body -->
+
+        <path d="
+            M25 15
+            L25 250
+            Q25 285 50 285
+            Q75 285 75 250
+            L75 15
+            Z"
+
+              fill="url(#glassFill)"
+              stroke="rgba(255,255,255,.9)"
+              stroke-width="4"
+              stroke-linejoin="round" />
+
+        <!-- Neck opening -->
+
+        <line x1="25"
+              y1="15"
+              x2="75"
+              y2="15"
+              stroke="rgba(255,255,255,.45)"
+              stroke-width="4" />
+
+        <!-- Main reflection -->
+
+        <path d="
+            M34 25
+            L34 245
+            Q34 270 47 278"
+
+              stroke="rgba(255,255,255,.28)"
+              stroke-width="5"
+              fill="none"
+              stroke-linecap="round" />
+
+        <!-- Secondary reflection -->
+
+        <path d="
+            M64 30
+            L64 240"
+
+              stroke="rgba(255,255,255,.08)"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round" />
+
+    </svg>
+
+</div>
+
+@code {
+    [Parameter] public Flask Flask { get; set; } = default!;
+    [Parameter] public bool Selected { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+}

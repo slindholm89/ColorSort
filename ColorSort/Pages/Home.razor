@@ -1,7 +1,191 @@
-﻿@page "/"
+﻿
+@page "/"
 
-<PageTitle>Home</PageTitle>
+@inject GameService Game
+@inject LevelGenerator Generator
+@inject StorageService Storage
 
-<h1>Hello, world!</h1>
+@implements IDisposable
 
-Welcome to your new app.
+
+<div class="game-shell">
+
+    <div class="game-header">
+        <div>
+            <h1>ColorSort</h1>
+            <p><strong>Sort the containers to a solid color!</strong></p>
+        </div>
+
+        <div class="topbar-right">
+            <div class="score-box">
+                ⏱ @Elapsed
+            </div>
+
+            <div class="game-actions">
+                <button title="Restart"
+                    @onclick="Restart">
+                    ↻
+                </button>
+
+                <button title="Undo"
+                        disabled="@(Game.State.RemainingUndos == 0)"
+                        @onclick="Undo">
+                    ↶
+                    <span class="undo-badge">
+                        @Game.State.RemainingUndos
+                    </span>
+                </button>
+
+                <button title="Pause"
+                        @onclick="TogglePause">
+                    ⏸
+                </button>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="level-section">
+
+        <div class="level-title">
+            Level @Game.State.Level
+        </div>
+    </div>
+
+    <div class="board-container">
+
+        <div class="board">
+
+            @for (var i = 0; i < Game.State.Flasks.Count; i++) {
+                var current = i;
+
+                <FlaskComponent Flask="Game.State.Flasks[i]"
+                                Selected="Game.State.SelectedFlask == i"
+                                OnClick="() => Select(current)" />
+            }
+
+        </div>
+
+    </div>
+
+    <div class="game-footer">
+        <p>
+            <strong>No tracking, Offline caching, made with AI</strong>
+        </p>
+    </div>
+
+
+</div>
+@if (ShowLevelComplete) {
+    <div class="level-complete">
+
+        <div class="level-complete-card">
+
+            <div class="complete-icon">
+                ✓
+            </div>
+
+            <h2>Level Complete!</h2>
+
+            <p>
+                Great job!
+            </p>
+
+        </div>
+
+    </div>
+}
+@code {
+
+    private PeriodicTimer? _timer;
+    private CancellationTokenSource? _cts;
+    private bool ShowLevelComplete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var saved = await Storage.LoadGameAsync();
+        if (saved != null) {
+            Game.NewLevel(saved);
+        } else {
+            Game.NewLevel(Generator.Generate(1));
+        }
+        
+        Game.Changed += GameChanged;
+        StartTimer();
+    }
+
+    void GameChanged() {
+        InvokeAsync(async () => await Storage.SaveGameAsync(Game.State));
+        StateHasChanged();
+    }
+
+    string Elapsed =>
+    Game.State.Elapsed
+        .ToString(@"mm\:ss");
+
+    /*
+    void Select(int flask)
+    {
+        Game.SelectFlask(flask);
+
+        if (Game.IsCompleted())
+            Game.NewLevel(Generator.Generate(Game.State.Level + 1));
+    }
+    */
+    private async Task Select(int flask) {
+        Game.SelectFlask(flask);
+
+        if (!Game.IsCompleted())
+            return;
+
+        ShowLevelComplete = true;
+
+        StateHasChanged();
+
+        await Task.Delay(1500);
+
+        ShowLevelComplete = false;
+
+        Game.NewLevel(
+            Generator.Generate(
+                Game.State.Level + 1));
+    }
+
+    void Restart() =>
+        Game.NewLevel(Generator.Generate(Game.State.Level));
+
+    void Undo() => Game.Undo();
+
+    void TogglePause() =>
+        Game.State.Paused = !Game.State.Paused;
+
+
+    private void StartTimer() {
+        _cts = new CancellationTokenSource();
+
+        _ = RunTimer(_cts.Token);
+    }
+
+    private async Task RunTimer(
+        CancellationToken token) {
+        _timer = new PeriodicTimer(
+            TimeSpan.FromSeconds(1));
+
+        try {
+            while (await _timer.WaitForNextTickAsync(token)) {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException) {
+        }
+    }
+
+
+    public void Dispose() {
+        Game.Changed -= GameChanged;
+
+        _cts?.Cancel();
+        _timer?.Dispose();
+        _cts?.Dispose();
+    }
+}

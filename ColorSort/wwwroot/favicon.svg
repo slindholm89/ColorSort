@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#27338f"/>
+      <stop offset="100%" stop-color="#090d1d"/>
+    </linearGradient>
+
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+
+  <circle cx="256" cy="120" r="180"
+          fill="#7856ff"
+          opacity="0.15"/>
+
+  <g transform="translate(90,70)">
+    <g>
+      <path d="M40 20 L40 285 Q40 340 95 340 Q150 340 150 285 L150 20"
+            fill="url(#glass)"
+            stroke="white"
+            stroke-opacity="0.85"
+            stroke-width="10"/>
+
+      <rect x="50" y="265" width="90" height="65" fill="#10B981"/>
+      <rect x="50" y="200" width="90" height="65" fill="#FBBF24"/>
+      <rect x="50" y="135" width="90" height="65" fill="#FF5A5F"/>
+    </g>
+
+    <g transform="translate(170,0)">
+      <path d="M40 20 L40 285 Q40 340 95 340 Q150 340 150 285 L150 20"
+            fill="url(#glass)"
+            stroke="white"
+            stroke-opacity="0.85"
+            stroke-width="10"/>
+
+      <rect x="50" y="265" width="90" height="65" fill="#60A5FA"/>
+      <rect x="50" y="200" width="90" height="65" fill="#60A5FA"/>
+      <rect x="50" y="135" width="90" height="65" fill="#60A5FA"/>
+    </g>
+  </g>
+
+  <text x="256"
+        y="455"
+        text-anchor="middle"
+        fill="white"
+        font-family="Segoe UI, Arial"
+        font-size="56"
+        font-weight="700">
+    ColorSort
+  </text>
+</svg>
