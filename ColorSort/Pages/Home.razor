@@ -82,7 +82,7 @@
         <div class="level-complete-card">
 
             <div class="complete-icon">
-                ✓
+                ✓                
             </div>
 
             <h2>Level Complete!</h2>
@@ -95,6 +95,27 @@
 
     </div>
 }
+@if (Game.State.Paused) {
+    <div class="level-complete">
+
+        <div class="level-complete-card">
+
+            <div class="complete-icon">
+                ⏸
+            </div>
+
+            <h2>Game paused!</h2>
+
+            <button title="Play"
+                    @onclick="TogglePause">
+                ▶
+            </button>
+
+        </div>
+
+    </div>
+}
+
 @code {
 
     private PeriodicTimer? _timer;
